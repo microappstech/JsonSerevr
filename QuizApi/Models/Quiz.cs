@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace QuizApi.Models
 {
@@ -9,13 +11,18 @@ namespace QuizApi.Models
         public string name { get; set; }
         public string description { get; set; }
         public int SectionId { get; set; }
+        public string Image { get; set; }
         public Sections Section { get; set; }
         public ICollection<Question> Questions { get; set; }
 
     }
     public class QuizDto
     {
-        public string name { get; set; }
+#nullable enable
+        
+        public string? name { get; set; }
+        public string? Image { get; set; }
+#nullable disable
         public string description { get; set; }
         public int SectionId { get; set; }
     }

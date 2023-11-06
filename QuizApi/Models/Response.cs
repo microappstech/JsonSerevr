@@ -13,6 +13,8 @@ namespace QuizApi.Models
     }
     public class ResponseDto
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
         public string description { get; set; }
         public bool isok { get; set; }
         public int questionId { get; set; }

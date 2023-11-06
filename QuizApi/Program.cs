@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using QuizApi.Context;
@@ -16,7 +17,21 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 },ServiceLifetime.Transient);
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<GzipCompressionProvider>();
+    options.EnableForHttps = true;
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/json" });
 
+});
+builder.Services.AddMvc().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Optimal;
+});
 
 builder.Services.AddCors(option =>
 {

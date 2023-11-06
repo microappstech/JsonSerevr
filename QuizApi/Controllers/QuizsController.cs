@@ -25,11 +25,28 @@ namespace QuizApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzes()
         {
-          if (_context.Quizzes == null)
-          {
-              return NotFound();
-          }
-            return await _context.Quizzes.ToListAsync();
+            if (_context.Quizzes == null)
+            {
+                return NotFound();
+            }
+            var quizes = _context.Quizzes.AsQueryable().Include(q=>q.Questions);
+            quizes.Include(i => i.Questions);
+            return Ok(quizes);
+            return await Task.FromResult(quizes.ToList());
+
+        }
+        [HttpGet("GetQuizzes{sectionId}")]
+        public async Task<ActionResult<IEnumerable<Quiz>>> GetQuizzesBySectionId(int sectionId)
+        {
+            if (_context.Quizzes == null)
+            {
+                return NotFound();
+            }
+            var quizes = _context.Quizzes.Where(i=>i.SectionId==sectionId).AsQueryable();
+            quizes = quizes.Include(i => i.Questions);
+            return Ok(quizes);
+            return await Task.FromResult(quizes.ToList());
+
         }
 
         // GET: api/Quizs/5
@@ -41,6 +58,7 @@ namespace QuizApi.Controllers
               return NotFound();
           }
             var quiz = await _context.Quizzes.FindAsync(id);
+                        
 
             if (quiz == null)
             {
@@ -83,16 +101,17 @@ namespace QuizApi.Controllers
 
         // POST: api/Quizs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("PostQuiz")]
         public async Task<ActionResult<Quiz>> PostQuiz(QuizDto quizDto)
         {
-          if (_context.Quizzes == null)
-          {
-              return Problem("Entity set 'AppDbContext.Quizzes'  is null.");
-          }
+            if (_context.Quizzes == null)
+            {
+                return Problem("Entity set 'AppDbContext.Quizzes'  is null.");
+            }
             var quiz = new Quiz()
             {
                 name = quizDto.name,
+                Image = quizDto.Image,
                 description = quizDto.description,
                 SectionId = quizDto.SectionId
             };
@@ -101,6 +120,33 @@ namespace QuizApi.Controllers
 
             return CreatedAtAction("GetQuiz", new { id = quiz.id }, quiz);
         }
+
+        // POST: api/Quizs
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("PostListQuiz")]
+        public async Task<ActionResult<List<Quiz>>> PostListQuiz(QuizDto[] quizDto)
+        {
+            if (_context.Quizzes == null)
+            {
+                return Problem("Entity set 'AppDbContext.Quizzes' is null.");
+            }
+            foreach(var qz in quizDto)
+            {
+
+                var quiz = new Quiz()
+                {
+                    name = qz.name,
+                    Image = qz.Image,
+                    description = qz.description,
+                    SectionId = qz.SectionId
+                };
+                _context.Quizzes.Add(quiz);
+            }
+            await _context.SaveChangesAsync();
+
+            return Ok("Created");
+        }
+
 
         // DELETE: api/Quizs/5
         [HttpDelete("{id}")]

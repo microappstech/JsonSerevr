@@ -9,12 +9,14 @@ namespace QuizApi.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public int CategoryId { get; set; }
+        public string Image { get; set; }
         public Categories Categorie { get; set; }
         public ICollection<Quiz> Quizzes { get; set; }
     }
     public class SectionsDto
     {
         public string Name { get; set; }
+        public string Image { get; set; }
         public int CategoryId { get; set; }
     }
 }

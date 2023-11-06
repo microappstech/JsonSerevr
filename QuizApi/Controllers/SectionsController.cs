@@ -29,7 +29,7 @@ namespace QuizApi.Controllers
           {
               return NotFound();
           }
-            return await _context.Sections.ToListAsync();
+            return await _context.Sections.AsQueryable().Include(i=>i.Quizzes).ToListAsync();
         }
 
         // GET: api/Sections/5
@@ -93,6 +93,7 @@ namespace QuizApi.Controllers
             var sections = new Sections()
             {
                 Name = sDto.Name,
+                Image = sDto.Image,
                 CategoryId = sDto.CategoryId
             };
             _context.Sections.Add(sections);
@@ -132,6 +133,15 @@ namespace QuizApi.Controllers
         private bool SectionsExists(int id)
         {
             return (_context.Sections?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        
+        [HttpGet("GetSectionsByCategory")]
+        public async Task<IActionResult> GetSectionsByCategory(int idCate)
+        {
+            var sections = 
+                _context.Sections.Where(i => i.CategoryId == idCate);
+             sections = sections.Include(s => s.Quizzes);
+            return Ok(sections);
         }
     }
 }

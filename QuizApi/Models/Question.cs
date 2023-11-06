@@ -16,6 +16,7 @@ namespace QuizApi.Models
     {
         public string? description { get; set; }
         public int quizid { get; set; }
+        public ICollection<ResponseDto> Responses { get; set; }
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,15 @@ namespace QuizApi.Controllers
           }
             return await _context.Questions.ToListAsync();
         }
-
+        [HttpGet("GetQuestionsByQuizid")]
+        public async Task<ActionResult<IEnumerable<Question>>> GetQuestionByQuizId(int QuizId)
+        {
+            if (_context.Questions == null)
+                return NotFound();
+            var questions = _context.Questions.AsNoTracking().AsQueryable().Where(q=>q.quizid == QuizId);
+            questions = questions.Include(i => i.Responses);
+            return Ok(questions);
+        }
         // GET: api/Questions/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Question>> GetQuestion(int id)
@@ -95,7 +104,18 @@ namespace QuizApi.Controllers
                 description = qDto.description,
                 quizid = qDto.quizid
             };
-            _context.Questions.Add(question);
+            var result = _context.Questions.Add(question);
+            await _context.SaveChangesAsync();
+            foreach (var dtoRes in qDto.Responses)
+            {
+                var res = new Response()
+                {
+                    description = dtoRes.description,
+                    isok = dtoRes.isok,
+                    questionId = question.id
+                };
+                _context.Responses.Add(res);
+            }
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetQuestion", new { id = question.id }, question);
@@ -120,6 +140,7 @@ namespace QuizApi.Controllers
 
             return NoContent();
         }
+
 
         private bool QuestionExists(int id)
         {
