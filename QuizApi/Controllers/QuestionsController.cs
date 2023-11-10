@@ -92,7 +92,7 @@ namespace QuizApi.Controllers
 
         // POST: api/Questions
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("New")]
         public async Task<ActionResult<Question>> PostQuestion(QuestionDto qDto)
         {
           if (_context.Questions == null)

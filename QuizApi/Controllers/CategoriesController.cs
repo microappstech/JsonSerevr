@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using QuizApi.Api;
 using QuizApi.Context;
 using QuizApi.Models;
 
@@ -24,10 +25,15 @@ namespace QuizApi.Controllers
 
         // GET api/<CategoriesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            var category = _context.Categories.Where(c => c.id == id).FirstOrDefault();
+            if (category == null) {
+                return Ok(new ApiResponse { IsSuccess = true, Message = "Not found" });
+            }
+            return Ok(category);
         }
+
 
         // POST api/<CategoriesController>
         [HttpPost]
