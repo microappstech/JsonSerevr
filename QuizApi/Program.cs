@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using QuizApi.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,8 +16,13 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
-    opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    //opt.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("RemoteConfig")) ;
 },ServiceLifetime.Transient);
+
+//builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+
 builder.Services.AddResponseCompression(options =>
 {
     options.Providers.Add<GzipCompressionProvider>();
